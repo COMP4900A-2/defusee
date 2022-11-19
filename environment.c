@@ -21,7 +21,7 @@ int main() {
 	//detect that mine and destroy it.
 	//create channel stuffname_attach_t *attach;
 	int rcvid, rpid;
-	Info info;
+	sensor_response info;
 
 	name_attach_t *attach;
 
@@ -52,9 +52,9 @@ int main() {
 			}
 			if (map[x][y]) break;
 		}
-		info.sr.value = map[x][y];
-		info.sr.x = x;
-		info.sr.y = y;
+		info.value = map[x][y];
+		info.x = x;
+		info.y = y;
 		// possibility: use iov? (assignment 6 as an example).
 		MsgReply(rcvid, EOK, &info, sizeof(info));
 		//algorith to find the mine/object

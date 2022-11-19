@@ -16,7 +16,7 @@ TARGET = -Vgcc_ntoaarch64le
 
 CFLAGS += $(DEBUG) $(TARGET) -Wall
 LDFLAGS+= $(DEBUG) $(TARGET)
-BINS = defusee environment
+BINS = defusee environment sensor
 all: $(BINS)
 
 clean:
@@ -26,3 +26,4 @@ clean:
 
 environment.o: environment.c defs.h
 defusee.o: defusee.c defs.h
+sensor.o: sensor.c defs.h

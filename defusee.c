@@ -19,6 +19,9 @@ int main(void) {
 	attr.c_lflag &= ~ICANON;
 	attr.c_lflag &= ECHO;
 	tcsetattr(0, TCSANOW, &attr);
+	char pidbuffer[32];
+	itoa(getpid(), pidbuffer, 10);
+	spawnlp(P_NOWAIT, "/tmp/sensor", "sensor", pidbuffer, NULL);
 
 	Info info;
 	info.x = 50;
@@ -34,12 +37,10 @@ int main(void) {
 
 void *sensor(void * arg) {
 	Info *info = (Info *) arg;
-	int coid = name_open(ATTACH_POINT,0);
+	int sensor_coid = name_open(SENSOR_ATTACH, 0);
 	while(1) {
-		int x = getchar();
-		printf("%d\n", x);
-		sleep(1);
-		MsgSend(coid, info, sizeof(*info), info, sizeof(*info));
+		MsgSendPulse(sensor_coid,1,_PULSE_CODE_MINAVAIL, info->direction);
+		usleep(10000);
 	}
 }
 
@@ -47,10 +48,12 @@ void *movement(void *arg) {
 	Info *info = (Info *) arg;
 	//wait for a command to move
 	while(1) {
-		// 1. getchar() to get '/033'
-		// if it is: we discard the next character, and we only care about the A,B,C,D,E.
-		//if it's not, we ignore it
-		info->y += 1;
+		char x = getchar();
+		if(x == 'w' || x == 'W') info->y--;
+		else if(x == 's' || x == 'S') info->y++;
+		else if(x == 'a' || x == 'A') info->x--;
+		else if(x == 'd' || x == 'D') info->x++;
+		while(getchar() != -1);
 		sleep(1);
 	}
 }
