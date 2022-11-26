@@ -19,9 +19,9 @@ int main(void) {
 	attr.c_lflag &= ~ICANON;
 	attr.c_lflag &= ECHO;
 	tcsetattr(0, TCSANOW, &attr);
-	char pidbuffer[32];
-	itoa(getpid(), pidbuffer, 10);
-	spawnlp(P_NOWAIT, "/tmp/sensor", "sensor", pidbuffer, NULL);
+	//this step spawns the sensor "notice me sensor"
+	spawnlp(P_NOWAIT, "/tmp/sensor", "sensor", NULL);
+	sleep(1);
 
 	Info info;
 	info.x = 50;
@@ -38,9 +38,14 @@ int main(void) {
 void *sensor(void * arg) {
 	Info *info = (Info *) arg;
 	int sensor_coid = name_open(SENSOR_ATTACH, 0);
+	if(sensor_coid == -1) {
+		perror("name_open():");
+		exit(-1);
+	}
 	while(1) {
-		MsgSendPulse(sensor_coid,1,_PULSE_CODE_MINAVAIL, info->direction);
-		usleep(10000);
+		MsgSend(sensor_coid,info, sizeof(Info), NULL, 0);
+		printf("msgSent\n");
+		usleep(1000000);
 	}
 }
 

@@ -21,15 +21,11 @@
 
 int main(int argc, char **argv) {
 
-	if(argc < 2) {
-		return EXIT_FAILURE;
-	}
-	printf(argv[1]);
 	//defusee will call spawnvp to spawn the sensor and send its pid.
 	//the sensor will create the shareable memory and send the handle to defusee
 	//defusee will then access the memory sent by sensore.
-	int fd;
-	struct _pulse pulse;
+	int fd, rcvid;
+	Info info;
 	sensor_response *resp;
 	name_attach_t *attach;
 	attach = name_attach(NULL, SENSOR_ATTACH, 0);
@@ -48,11 +44,12 @@ int main(int argc, char **argv) {
 	close(fd);
 	int env_coid = name_open(ATTACH_POINT, 0);
 	while(1) {
-		MsgReceive(attach->chid, &pulse, sizeof(pulse), NULL);
-		MsgSend(env_coid, &pulse.value.sival_int, sizeof(int), resp, sizeof(sensor_response));
+		rcvid = MsgReceive(attach->chid,&info, sizeof(Info), NULL);
+		printf("rcvid: %d\n", rcvid);
+		MsgReply(rcvid, EOK, NULL, 0);
+		MsgSend(env_coid, &info, sizeof(Info), resp, sizeof(sensor_response));
 		printf("value: %d\n", resp->value);
-		printf("x: %d\n", resp->x);
-		printf("y: %d\n", resp->y);
+		printf("distance to mine: %d\n", resp->distance);
 	}
 	munmap(resp, __PAGESIZE);
 	//shm_unlink("/sensor");

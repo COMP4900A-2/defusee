@@ -17,11 +17,12 @@ int main() {
 		}
 	}
 
-	map[50][99] = 1;
+	map[50][50] = 1;
 	//detect that mine and destroy it.
 	//create channel stuffname_attach_t *attach;
-	int rcvid, rpid;
-	sensor_response info;
+	int rcvid;
+	Info info;
+	sensor_response response;
 
 	name_attach_t *attach;
 
@@ -31,9 +32,12 @@ int main() {
 
 	while(1) {
 		//wait for coordinate request or whatever
-		rcvid = MsgReceive(attach->chid, &info, sizeof(info), NULL);
-		char x = info.x;
-		char y = info.y;
+		rcvid = MsgReceive(attach->chid, &info, sizeof(Info), NULL);
+		printf("direction: %c\n", info.direction);
+		printf("robot y: %d\n", info.y);
+		printf("robot x: %d\n", info.x);
+		unsigned char x = info.x;
+		unsigned char y = info.y;
 
 		while(y < 100 && x < 100 && y >= 0 && x >= 0) {
 			switch (info.direction) {
@@ -52,13 +56,16 @@ int main() {
 			}
 			if (map[x][y]) break;
 		}
-		info.value = map[x][y];
-		info.x = x;
-		info.y = y;
+		response.value = map[x][y];
+		response.distance = -1;
+		if (response.value) {
+			int x_diff = info.x - x; //[info.x = 50, x = 50] => 0
+			int y_diff = info.y - y; //[info.y = 45, y = 50] => 45 - 50 = -5
+			response.distance = abs((int) (x_diff + y_diff)); //5
+
+		}
 		// possibility: use iov? (assignment 6 as an example).
-		MsgReply(rcvid, EOK, &info, sizeof(info));
-		//algorith to find the mine/object
-		//reply with a message;
+		MsgReply(rcvid, EOK, &response, sizeof(response));
 
 	}
 }

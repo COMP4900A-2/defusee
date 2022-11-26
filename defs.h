@@ -8,14 +8,12 @@
 #define SENSOR_ATTACH "sensor_attach"
 
 	struct sensor_response {
-		unsigned int x;
-		unsigned int y;// coordinate [x, y] of the objects found in the environment
-		char value; // 1 is a mine and 2 is an obstacle
+		char distance;
+		char unsigned value; // 1 is a mine and 2 is an obstacle
 	} typedef sensor_response;
 
 	struct info {
-		unsigned int x;
-		unsigned int y;
-		char direction;
-		sensor_response sr;
+		unsigned char x;
+		unsigned char y;
+		unsigned char direction;
 	} typedef Info;
