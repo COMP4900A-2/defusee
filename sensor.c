@@ -45,11 +45,8 @@ int main(int argc, char **argv) {
 	int env_coid = name_open(ATTACH_POINT, 0);
 	while(1) {
 		rcvid = MsgReceive(attach->chid,&info, sizeof(Info), NULL);
-		printf("rcvid: %d\n", rcvid);
 		MsgReply(rcvid, EOK, NULL, 0);
 		MsgSend(env_coid, &info, sizeof(Info), resp, sizeof(sensor_response));
-		printf("value: %d\n", resp->value);
-		printf("distance to mine: %d\n", resp->distance);
 	}
 	munmap(resp, __PAGESIZE);
 	//shm_unlink("/sensor");

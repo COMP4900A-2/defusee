@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #define ATTACH_POINT	"environment"
 
 #define NORTH 'N'
@@ -6,6 +8,9 @@
 #define WEST 'W'
 #define SENSOR_TRIGGER 1
 #define SENSOR_ATTACH "sensor_attach"
+#define NO_MINE 0
+#define NEAR_MINE 1
+#define WAIT 2
 
 	struct sensor_response {
 		char distance;
@@ -16,4 +21,6 @@
 		unsigned char x;
 		unsigned char y;
 		unsigned char direction;
+		bool demine;
+
 	} typedef Info;

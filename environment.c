@@ -7,21 +7,33 @@
 
 #include "defs.h"
 
+void printMap(char **map, int x, int y);
+
 int main() {
 
-	char map[100][100];
+	typedef union
+	{
+		struct _pulse pulse;
+	    Info info;
+	} myMessage_t;
 
-	for(int i=0; i < 100; i++) {
-		for(int j=0; j < 100; j++) {
+	myMessage_t message;
+
+	char map[50][50];
+
+	for(int i=0; i < 50; i++) {
+		for(int j=0; j < 50; j++) {
 			map[i][j] = 0;
 		}
 	}
 
-	map[50][50] = 1;
+	map[25][25] = 1;
+	map[15][23] = 1;
+	map[12][11] = 1;
+	map [13][0] = 1;
 	//detect that mine and destroy it.
 	//create channel stuffname_attach_t *attach;
 	int rcvid;
-	Info info;
 	sensor_response response;
 
 	name_attach_t *attach;
@@ -30,12 +42,31 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
+	Info info;
+
 	while(1) {
 		//wait for coordinate request or whatever
-		rcvid = MsgReceive(attach->chid, &info, sizeof(Info), NULL);
-		printf("direction: %c\n", info.direction);
-		printf("robot y: %d\n", info.y);
-		printf("robot x: %d\n", info.x);
+		rcvid = MsgReceive(attach->chid, &message, sizeof(myMessage_t), NULL);
+
+		if(rcvid == 0) {
+			int direction = message.pulse.value.sival_int;
+			switch (direction) {
+			case NORTH:
+				map[info.x][info.y - 1] = 0;
+				break;
+			case SOUTH:
+				map[info.x][info.y + 1] = 0;
+				break;
+			case EAST:
+				break;
+			case WEST:
+				break;
+			}
+			continue;
+		}
+		info = message.info;
+		map[info.x][info.y] = 3;
+
 		unsigned char x = info.x;
 		unsigned char y = info.y;
 
@@ -66,6 +97,14 @@ int main() {
 		}
 		// possibility: use iov? (assignment 6 as an example).
 		MsgReply(rcvid, EOK, &response, sizeof(response));
+		for(int i=0; i<50; i++) {
+			for(int j=0; j<50; j++) {
+				printf("%d ", map[i][j]);
+			}
+			printf("\n");
+		}
 
 	}
+
+
 }
