@@ -13,6 +13,8 @@
 
 #include "defs.h"
 
+#define X_DIM 20
+#define Y_DIM 20
 
 int main() {
 
@@ -24,14 +26,16 @@ int main() {
 
 	myMessage_t message;
 
-	char map[20][20];
+	char map[X_DIM][Y_DIM];
 
-	for(int i=0; i < 20; i++) {
-		for(int j=0; j < 20; j++) {
+	//initial our 2d map to 0
+	for(int i=0; i < X_DIM; i++) {
+		for(int j=0; j < Y_DIM; j++) {
 			map[i][j] = 0;
 		}
 	}
 
+	//set our mines
 	map[15][10] = 1;
 	map[10][7] = 1;
 	map[0][1] = 1;
@@ -75,7 +79,7 @@ int main() {
 		unsigned char x = info.x;
 		unsigned char y = info.y;
 
-		while(y < 20 && x < 20 && y >= 0 && x >= 0) {
+		while(y < Y_DIM - 1 && x < X_DIM - 1 && y > 0 && x > 0) {
 			switch (info.direction) {
 			case NORTH:
 				y -= 1;
@@ -93,7 +97,7 @@ int main() {
 			if (map[x][y]) break;
 		}
 		response.value = map[x][y];
-		response.distance = -1;
+		response.distance = 255;
 		if (response.value) {
 			int x_diff = info.x - x; //[info.x = 50, x = 50] => 0
 			int y_diff = info.y - y; //[info.y = 45, y = 50] => 45 - 50 = -5

@@ -41,7 +41,7 @@ int main(void) {
 	Info info;
 	info.x = 12;
 	info.y = 12;
-	info.direction = SOUTH;
+	info.direction = WEST;
 
 	pid_t pid_sensor, pid_movement, pid_demine;
 	pthread_create(&pid_sensor, NULL, sensor, (void *) &info);
@@ -79,7 +79,6 @@ int main(void) {
 			printf("distance to mine: %d\n", response->distance);
 			state = NO_MINE;
 		} else {
-			info.demine = true;
 			state = NEAR_MINE;
 		}
 		pthread_cond_broadcast(&cond);
@@ -132,7 +131,7 @@ void *movement(void *arg) {
 			else info->y++;
 		}
 		else if(key == 'a' || key == 'A') {
-			if(info->direction != SOUTH) info->direction = WEST;
+			if(info->direction != WEST) info->direction = WEST;
 			else info->x--;
 		}
 		else if(key == 'd' || key == 'D') {

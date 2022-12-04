@@ -17,14 +17,13 @@
 #define SERVER "10.0.0.183"
 
 	struct sensor_response {
-		char distance;
-		char unsigned value; // 1 is a mine and 2 is an obstacle
+		unsigned char distance;
+		unsigned char value; // 1 is a mine and 2 is an obstacle
 	} typedef sensor_response;
 
 	struct info {
 		unsigned char x;
 		unsigned char y;
 		unsigned char direction;
-		bool demine;
 
 	} typedef Info;
