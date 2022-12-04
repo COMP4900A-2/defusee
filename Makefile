@@ -13,14 +13,13 @@ LD = qcc
 #TARGET = -Vgcc_ntoarmv7le
 TARGET = -Vgcc_ntoaarch64le
 
-
-CFLAGS += $(DEBUG) $(TARGET) -Wall
-LDFLAGS+= $(DEBUG) $(TARGET)
-BINS = defusee environment sensor
-all: $(BINS)
+all:
+	qcc -Vgcc_ntoaarch64le  $(TARGET) environment.c -o environment
+	qcc -Vgcc_ntoaarch64le	$(TARGET) sensor.c -o sensor
+	qcc -Vgcc_ntoaarch64le  $(TARGET) defusee.c -o defusee
 
 clean:
-	rm -f *.o $(BINS);
+	rm -f *.o environment sensor defusee display
 #	cd solutions; make clean
 
 

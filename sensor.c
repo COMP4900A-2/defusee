@@ -29,6 +29,9 @@ int main(int argc, char **argv) {
 	sensor_response *resp;
 	name_attach_t *attach;
 	attach = name_attach(NULL, SENSOR_ATTACH, 0);
+	if(attach == NULL) {
+		perror("attach():");
+	}
 	if((fd = shm_open("/sensor_memory", O_CREAT|O_RDWR, 0600)) == -1) {
 		perror("shm_open()");
 		return EXIT_FAILURE;
@@ -42,7 +45,9 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	close(fd);
+	printf("memory setting done\n");
 	int env_coid = name_open(ATTACH_POINT, 0);
+	printf("name open done\n");
 	while(1) {
 		rcvid = MsgReceive(attach->chid,&info, sizeof(Info), NULL);
 		MsgReply(rcvid, EOK, NULL, 0);

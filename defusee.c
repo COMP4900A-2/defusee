@@ -64,10 +64,19 @@ int main(void) {
 		while(state != WAIT) {
 			pthread_cond_wait(&cond, &mutex);
 		}
-		//printf("robot x:%d\trobot y: %d\n", info.x, info.y);
-		//printf("distance to mine: %d\n", response->distance);
+
+		state = SENSOR;
+
+		pthread_cond_broadcast(&cond);
+		pthread_mutex_unlock(&mutex);
+
+		pthread_mutex_lock(&mutex);
+		while(state != WAIT) pthread_cond_wait(&cond, &mutex);
+
 		if(response->distance > 1) {
-			info.demine = false;
+			printf("robot x:%d\trobot y: %d\n", info.x, info.y);
+			printf("Facing Direction: %c\n", info.direction);
+			printf("distance to mine: %d\n", response->distance);
 			state = NO_MINE;
 		} else {
 			info.demine = true;
@@ -82,6 +91,7 @@ int main(void) {
 }
 
 void *sensor(void * arg) {
+
 	Info *info = (Info *) arg;
 	int sensor_coid = name_open(SENSOR_ATTACH, 0);
 	if(sensor_coid == -1) {
@@ -89,8 +99,16 @@ void *sensor(void * arg) {
 		exit(-1);
 	}
 	while(1) {
+		pthread_mutex_lock(&mutex);
+		while(state != SENSOR) {
+			pthread_cond_wait(&cond, &mutex);
+		}
 		MsgSend(sensor_coid,info, sizeof(Info), NULL, 0);
 		usleep(1000000);
+		state = WAIT;
+		pthread_cond_broadcast(&cond);
+		pthread_mutex_unlock(&mutex);
+
 	}
 }
 
@@ -103,12 +121,24 @@ void *movement(void *arg) {
 		while(state != NO_MINE) {
 			pthread_cond_wait(&cond, &mutex);
 		}
-		char x = 0;
-		x = getchar();
-		if(x == 'w' || x == 'W') info->y--;
-		else if(x == 's' || x == 'S') info->y++;
-		else if(x == 'a' || x == 'A') info->x--;
-		else if(x == 'd' || x == 'D') info->x++;
+		char key = 0;
+		key = getchar();
+		if(key == 'w' || key == 'W') {
+			if(info->direction != NORTH) info->direction = NORTH;
+			else info->y--;
+		}
+		else if(key == 's' || key == 'S') {
+			if(info->direction != SOUTH) info->direction = SOUTH;
+			else info->y++;
+		}
+		else if(key == 'a' || key == 'A') {
+			if(info->direction != SOUTH) info->direction = WEST;
+			else info->x--;
+		}
+		else if(key == 'd' || key == 'D') {
+			if(info->direction != EAST) info->direction = EAST;
+			else info->x++;
+		}
 		while(getchar() != -1);
 		state = WAIT;
 		pthread_cond_broadcast(&cond);
