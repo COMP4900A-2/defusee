@@ -103,7 +103,7 @@ void *sensor(void * arg) {
 			pthread_cond_wait(&cond, &mutex);
 		}
 		MsgSend(sensor_coid,info, sizeof(Info), NULL, 0);
-		usleep(1000000);
+		usleep(5000);
 		state = WAIT;
 		pthread_cond_broadcast(&cond);
 		pthread_mutex_unlock(&mutex);
@@ -120,8 +120,9 @@ void *movement(void *arg) {
 		while(state != NO_MINE) {
 			pthread_cond_wait(&cond, &mutex);
 		}
-		char key = 0;
-		key = getchar();
+		int key = 0;
+		while((key = getchar()) == EOF);
+		printf("%c\n", key);
 		if(key == 'w' || key == 'W') {
 			if(info->direction != NORTH) info->direction = NORTH;
 			else info->y--;
@@ -138,11 +139,10 @@ void *movement(void *arg) {
 			if(info->direction != EAST) info->direction = EAST;
 			else info->x++;
 		}
-		while(getchar() != -1);
+		while(getchar() != EOF);
 		state = WAIT;
 		pthread_cond_broadcast(&cond);
 		pthread_mutex_unlock(&mutex);
-		usleep(500000);
 	}
 }
 
