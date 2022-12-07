@@ -1,6 +1,13 @@
 # defusee    
 Robot Simulation for Demining mines
 
+## Authors
+
+Mahmoud Sabaayon - 101129493  
+William Wright - 1010204993  
+Evan Li - 101188718  
+Nazeeha Harun - 101139836  
+
 ## Compile Instruction  
 Make All
 
