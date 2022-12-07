@@ -1,14 +1,15 @@
-defusee
+# defusee    
 Robot Simulation for Demining mines
 
-Compile Instruction
+## Compile Instruction  
 Make All
 
-Run Instruction
+## Run Instruction  
 Execute those 3 process in this order either by inluding the process in /tmp/ or running directly from momentics:
 
-environment
-sensor
-defusee
-Control
-Uses wasd controls to move the robot around.
+environment  
+sensor  
+defusee  
+Control  
+
+How to operate: use WASD to move the robot around
