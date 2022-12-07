@@ -5,7 +5,7 @@ Robot Simulation for Demining mines
 Make All
 
 ## Run Instruction  
-Execute those 3 process in this order either by inluding the process in /tmp/ or running directly from momentics:
+Execute those 3 process in this order either by inluding the process in /tmp/
 
 environment  
 sensor  
