@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <sys/mman.h>
+#include <sys/iofunc.h>
+#include<sys/dispatch.h>
 
 #include "defs.h"
 
@@ -24,13 +26,14 @@ int main(void) {
 	//initialize state to WAIT
 	state = WAIT;
 
-	//find the gamestackoverflow link
-	struct termios attr;
+	//source: https://gamedev.stackexchange.com/questions/146256/how-do-i-get-getchar-to-not-block-the-input
+	//reading keyboard input in real time without waiting for a new-line character to be put in the buffer
 	fcntl(0, F_SETFL, O_NONBLOCK);
 	tcgetattr(0, &attr);
 	attr.c_lflag &= ~ICANON;
 	attr.c_lflag &= ECHO;
 	tcsetattr(0, TCSANOW, &attr);
+	//end of source
 
 	//create a shared memory access to the info written by the sensor process
 	int fd = shm_open("/sensor_memory", O_RDWR, 0);
@@ -101,6 +104,7 @@ void *sensor(void * arg) {
 		while(state != SENSOR) {
 			pthread_cond_wait(&cond, &mutex);
 		}
+		//Triggers sensor to send message to environment
 		MsgSend(sensor_coid,info, sizeof(Info), NULL, 0);
 		//slowing down the msgSend requests
 		usleep(5000);

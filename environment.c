@@ -109,6 +109,7 @@ int main() {
 		MsgReply(rcvid, EOK, &response, sizeof(response));
 
 	}
+	name_detach(attach, 0);
 
 
 }

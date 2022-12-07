@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
 	}
 	munmap(resp, __PAGESIZE);
 	shm_unlink("/sensor_memory");
+	name_detach(attach, 0);
 
 
 }
