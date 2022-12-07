@@ -13,11 +13,13 @@
 
 #include "defs.h"
 
-#define X_DIM 20
-#define Y_DIM 20
+//map size
+#define X_DIM 10
+#define Y_DIM 10
 
 int main() {
 
+	//we can either receive a message to scan the map, or a pulse to demine the mine
 	typedef union
 	{
 		struct _pulse pulse;
@@ -25,21 +27,19 @@ int main() {
 	} myMessage_t;
 
 	myMessage_t message;
-
-	char map[X_DIM][Y_DIM];
-
-	//initial our 2d map to 0
-	for(int i=0; i < X_DIM; i++) {
-		for(int j=0; j < Y_DIM; j++) {
-			map[i][j] = 0;
-		}
-	}
-
-	//set our mines
-	map[15][10] = 1;
-	map[10][7] = 1;
-	map[0][1] = 1;
-	map [2][6] = 1;
+	Info info;
+	char map[Y_DIM][X_DIM] ={
+			{2,2,2,2,2,2,2,2,2,2},
+			{2,0,0,0,0,0,0,0,0,2},
+			{2,0,0,0,0,0,0,0,0,2},
+			{2,0,0,2,2,2,2,0,0,2},
+			{2,1,0,2,0,1,2,0,0,2},
+			{2,0,0,2,0,2,2,0,0,2},
+			{2,0,0,0,0,0,0,0,0,2},
+			{2,0,0,0,0,0,0,0,0,2},
+			{2,0,0,0,0,1,0,0,0,2},
+			{2,2,2,2,2,2,2,2,2,2},
+			};
 
 	int rcvid;
 	sensor_response response;
@@ -50,8 +50,6 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-	Info info;
-
 	while(1) {
 		//wait for coordinate request or whatever
 		rcvid = MsgReceive(attach->chid, &message, sizeof(myMessage_t), NULL);
@@ -60,16 +58,16 @@ int main() {
 			int direction = message.pulse.value.sival_int;
 			switch (direction) {
 			case NORTH:
-				map[info.x][info.y - 1] = 0;
+				map[info.y - 1][info.x] = 0;
 				break;
 			case SOUTH:
-				map[info.x][info.y + 1] = 0;
+				map[info.y + 1][info.x] = 0;
 				break;
 			case EAST:
-				map[info.x + 1][info.y] = 0;
+				map[info.y][info.x + 1] = 0;
 				break;
 			case WEST:
-				map[info.x - 1][info.y] = 0;
+				map[info.y][info.x - 1] = 0;
 				break;
 			}
 			continue;
@@ -79,6 +77,8 @@ int main() {
 		unsigned char x = info.x;
 		unsigned char y = info.y;
 
+		//calculate the distance between the robot and the mine depending on its facing direction
+		// 255 is recorded if no mine is found
 		while(y < Y_DIM - 1 && x < X_DIM - 1 && y > 0 && x > 0) {
 			switch (info.direction) {
 			case NORTH:
@@ -94,9 +94,9 @@ int main() {
 				x -= 1;
 				break;
 			}
-			if (map[x][y]) break;
+			if (map[y][x]) break;
 		}
-		response.value = map[x][y];
+		response.value = map[y][x];
 		response.distance = 255;
 		if (response.value) {
 			int x_diff = info.x - x; //[info.x = 50, x = 50] => 0
@@ -105,6 +105,7 @@ int main() {
 
 		}
 
+		//reply back to the sensor
 		MsgReply(rcvid, EOK, &response, sizeof(response));
 
 	}

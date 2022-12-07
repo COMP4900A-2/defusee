@@ -1,10 +1,3 @@
-/*
- * Sensor.c
- *
- *  Created on: Nov 19, 2022
- *      Author: williamwright
- */
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -21,14 +14,13 @@
 
 int main(int argc, char **argv) {
 
-	//defusee will call spawnvp to spawn the sensor and send its pid.
-	//the sensor will create the shareable memory and send the handle to defusee
-	//defusee will then access the memory sent by sensore.
 	int fd, rcvid;
 	Info info;
 	sensor_response *resp;
 	name_attach_t *attach;
+
 	attach = name_attach(NULL, SENSOR_ATTACH, 0);
+
 	if(attach == NULL) {
 		perror("attach():");
 	}
@@ -49,12 +41,15 @@ int main(int argc, char **argv) {
 	int env_coid = name_open(ATTACH_POINT, 0);
 	printf("name open done\n");
 	while(1) {
+		//wait for a trigger from defusee
 		rcvid = MsgReceive(attach->chid,&info, sizeof(Info), NULL);
-		MsgReply(rcvid, EOK, NULL, 0);
+		//send message to environment to update sensor_response
 		MsgSend(env_coid, &info, sizeof(Info), resp, sizeof(sensor_response));
+		//reply back to defusee to confirm that it is done
+		MsgReply(rcvid, EOK, NULL, 0);
 	}
 	munmap(resp, __PAGESIZE);
-	//shm_unlink("/sensor");
+	shm_unlink("/sensor_memory");
 
 
 }
